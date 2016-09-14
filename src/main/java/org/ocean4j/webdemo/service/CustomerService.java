@@ -18,7 +18,6 @@ public class CustomerService {
      * @return
      */
     public List<Customer> getCustomerList(){
-        Connection conn = JdbcUtil.getConnection();
         String sql = "select * from customer";
         return JdbcUtil.queryEntityList(Customer.class,sql);
     }
