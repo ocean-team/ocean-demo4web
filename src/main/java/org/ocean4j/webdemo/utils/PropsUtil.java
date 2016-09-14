@@ -29,7 +29,9 @@ public class PropsUtil {
             if(is == null){
                 throw new FileNotFoundException(fileName+" file is not found ");
             }
-        } catch (FileNotFoundException e) {
+            props = new Properties();
+            props.load(is);
+        } catch (IOException e) {
             LOGGER.error("load properties file failure",e);
         } finally {
             if(is != null){

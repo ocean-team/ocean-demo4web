@@ -1,7 +1,9 @@
 package org.ocean4j.webdemo.service;
 
 import org.ocean4j.webdemo.model.Customer;
+import org.ocean4j.webdemo.utils.JdbcUtil;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
@@ -13,12 +15,12 @@ import java.util.Map;
 public class CustomerService {
     /**
      * 获取客户列表
-     * @param keyword
      * @return
      */
-    public List<Customer> getCustomerList(String keyword){
-        //TODO
-        return null;
+    public List<Customer> getCustomerList(){
+        Connection conn = JdbcUtil.getConnection();
+        String sql = "select * from customer";
+        return JdbcUtil.queryEntityList(Customer.class,sql);
     }
 
     /**
