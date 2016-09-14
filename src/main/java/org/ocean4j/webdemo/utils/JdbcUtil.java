@@ -1,6 +1,7 @@
 package org.ocean4j.webdemo.utils;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
@@ -8,6 +9,10 @@ import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -23,6 +28,7 @@ public final class JdbcUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcUtil.class);
     private static final QueryRunner QUERY_RUNNER = new QueryRunner();
     private static final ThreadLocal<Connection> CONNECTION_HOLDER = new ThreadLocal<Connection>();
+    private static final BasicDataSource DATA_SOURCE;
 
     private static final  String DRIVER;
     private static final  String URL;
@@ -35,11 +41,19 @@ public final class JdbcUtil {
         URL = conf.getProperty("jdbc.url");
         USERNAME = conf.getProperty("jdbc.username");
         PASSWORD = conf.getProperty("jdbc.password");
-        try {
+
+/*        try {
             Class.forName(DRIVER);
         } catch (ClassNotFoundException e) {
             LOGGER.error("can't load jdbc driver ",e);
-        }
+        }*/
+
+        //采用dbcp连接池的方式
+        DATA_SOURCE = new BasicDataSource();
+        DATA_SOURCE.setDriverClassName(DRIVER);
+        DATA_SOURCE.setUrl(URL);
+        DATA_SOURCE.setUsername(USERNAME);
+        DATA_SOURCE.setPassword(PASSWORD);
     }
 
     /**
@@ -50,7 +64,8 @@ public final class JdbcUtil {
         Connection conn = CONNECTION_HOLDER.get();
         if(conn == null){
             try{
-                conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+//                conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+                conn = DATA_SOURCE.getConnection();
             } catch (SQLException e) {
                 LOGGER.error("get connection failure ",e);
                 throw new RuntimeException(e);
@@ -63,6 +78,7 @@ public final class JdbcUtil {
 
     /**
      * 关闭数据库连接
+     * 目前采用dbcp连接池的方式获取数据库连接,所以不需要关闭
      */
     public static void closeConnection(){
         Connection conn = CONNECTION_HOLDER.get();
@@ -94,9 +110,11 @@ public final class JdbcUtil {
         } catch (SQLException e) {
             LOGGER.error("query entityList failure",e);
             throw new RuntimeException(e);
-        }finally {
-            closeConnection();
         }
+        //因为目前采用dbcp连接池的方式,所以不需要关闭连接
+//        finally {
+//            closeConnection();
+//        }
         return entityList;
     }
 
@@ -116,9 +134,11 @@ public final class JdbcUtil {
         } catch (SQLException e) {
             LOGGER.error("query entity failure",e);
             throw new RuntimeException(e);
-        }finally {
-            closeConnection();
         }
+        //因为目前采用dbcp连接池的方式,所以不需要关闭连接
+//        finally {
+//            closeConnection();
+//        }
         return entity;
     }
 
@@ -136,9 +156,11 @@ public final class JdbcUtil {
         } catch (SQLException e) {
             LOGGER.error("execute query failure",e);
             throw  new RuntimeException(e);
-        }finally {
-            closeConnection();
         }
+        //因为目前采用dbcp连接池的方式,所以不需要关闭连接
+//        finally {
+//            closeConnection();
+//        }
         return result;
     }
 
@@ -156,9 +178,11 @@ public final class JdbcUtil {
         } catch (SQLException e) {
             LOGGER.error("execute update failure",e);
             throw new RuntimeException(e);
-        }finally {
-            closeConnection();
         }
+        //因为目前采用dbcp连接池的方式,所以不需要关闭连接
+//        finally {
+//            closeConnection();
+//        }
         return rows;
     }
 
@@ -230,4 +254,21 @@ public final class JdbcUtil {
         return entityClass.getSimpleName();
     }
 
+    /**
+     * 执行sql文件
+     * @param filePath
+     */
+    public static void executeSqlFile(String filePath){
+        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        try {
+            String sql;
+            while((sql=reader.readLine())!=null){
+                executeUpdate(sql);
+            }
+        } catch (Exception e) {
+            LOGGER.error("execute sql file failure",e);
+            throw  new RuntimeException(e);
+        }
+    }
 }

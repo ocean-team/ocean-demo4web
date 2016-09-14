@@ -32,7 +32,7 @@ public class CustomerServiceTest {
 
     @Test
     public void getCustomer() throws Exception {
-        Customer customer = customerService.getCustomer(1);
+        Customer customer = customerService.getCustomer(2);
         System.out.println(customer);
     }
 
@@ -56,7 +56,7 @@ public class CustomerServiceTest {
 
     @Test
     public void deleteCustomer() throws Exception {
-        customerService.deleteCustomer(3);
+        customerService.deleteCustomer(2);
     }
 
 }
