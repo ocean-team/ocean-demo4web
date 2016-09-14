@@ -1,5 +1,6 @@
 package org.ocean4j.webdemo.service;
 
+import jdk.nashorn.internal.scripts.JD;
 import org.ocean4j.webdemo.model.Customer;
 import org.ocean4j.webdemo.utils.JdbcUtil;
 
@@ -28,8 +29,8 @@ public class CustomerService {
      * @return
      */
     public Customer getCustomer(long id){
-        //TODO
-        return null;
+        String sql = " select * from customer where id = ? ";
+        return JdbcUtil.queryEntity(Customer.class,sql,id);
     }
 
     /**
@@ -38,8 +39,7 @@ public class CustomerService {
      * @return
      */
     public boolean createCustomer(Map<String,Object> fieldMap){
-        //TODO
-        return false;
+        return JdbcUtil.insertEntity(Customer.class,fieldMap);
     }
 
     /**
@@ -49,11 +49,9 @@ public class CustomerService {
      * @return
      */
     public boolean updateCustomer(long id,Map<String,Object> fieldMap){
-        //TODO
-        return false;
+        return JdbcUtil.updateEntity(Customer.class,id,fieldMap);
     }
     public boolean deleteCustomer(long id){
-        //TODO
-        return false;
+        return JdbcUtil.deleteEntity(Customer.class,id);
     }
 }

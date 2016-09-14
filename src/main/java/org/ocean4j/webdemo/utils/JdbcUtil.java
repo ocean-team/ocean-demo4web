@@ -204,7 +204,7 @@ public final class JdbcUtil {
         String sql = "update " + getTablename(entityClass)+ " set ";
         StringBuilder columns = new StringBuilder();
         for(String fileName : fieldMap.keySet()){
-            columns.append(fieldMap).append("=?, ");
+            columns.append(fileName).append("=?, ");
         }
         sql += columns.substring(0,columns.lastIndexOf(", "))+" where id = ? ";
         List<Object> paramList = new ArrayList<Object>();
