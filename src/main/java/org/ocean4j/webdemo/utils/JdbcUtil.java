@@ -28,7 +28,12 @@ public final class JdbcUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcUtil.class);
     private static final QueryRunner QUERY_RUNNER = new QueryRunner();
     private static final ThreadLocal<Connection> CONNECTION_HOLDER = new ThreadLocal<Connection>();
-    private static final BasicDataSource DATA_SOURCE;
+
+    /**dbcp数据源*/
+    private static final BasicDataSource DBCP_DATA_SOURCE;
+    /**HikariCP数据源*/
+//    private HikariDataSource HIKARI_DATA_SOURCE;
+
 
     private static final  String DRIVER;
     private static final  String URL;
@@ -42,18 +47,24 @@ public final class JdbcUtil {
         USERNAME = conf.getProperty("jdbc.username");
         PASSWORD = conf.getProperty("jdbc.password");
 
-/*        try {
-            Class.forName(DRIVER);
-        } catch (ClassNotFoundException e) {
-            LOGGER.error("can't load jdbc driver ",e);
-        }*/
+        /**方式1:注册jdbc驱动*/
+//        try {
+//            Class.forName(DRIVER);
+//        } catch (ClassNotFoundException e) {
+//            LOGGER.error("can't load jdbc driver ",e);
+//        }
 
-        //采用dbcp连接池的方式
-        DATA_SOURCE = new BasicDataSource();
-        DATA_SOURCE.setDriverClassName(DRIVER);
-        DATA_SOURCE.setUrl(URL);
-        DATA_SOURCE.setUsername(USERNAME);
-        DATA_SOURCE.setPassword(PASSWORD);
+        /**方式2:配置dbcp连接池*/
+        DBCP_DATA_SOURCE = new BasicDataSource();
+        DBCP_DATA_SOURCE.setDriverClassName(DRIVER);
+        DBCP_DATA_SOURCE.setUrl(URL);
+        DBCP_DATA_SOURCE.setUsername(USERNAME);
+        DBCP_DATA_SOURCE.setPassword(PASSWORD);
+
+        /**方式3:HikariCP数据源*/
+//        HIKARI_DATA_SOURCE
+
+
     }
 
     /**
@@ -65,7 +76,7 @@ public final class JdbcUtil {
         if(conn == null){
             try{
 //                conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
-                conn = DATA_SOURCE.getConnection();
+                conn = DBCP_DATA_SOURCE.getConnection();
             } catch (SQLException e) {
                 LOGGER.error("get connection failure ",e);
                 throw new RuntimeException(e);
